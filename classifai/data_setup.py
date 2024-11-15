@@ -43,7 +43,7 @@ def create_dataloaders(
         batch_size=batch_size,
         shuffle=True,
         num_workers=num_workers,
-        pin_memory=True,
+        # pin_memory=True,
     )
 
     test_dataloader = DataLoader(
@@ -51,7 +51,7 @@ def create_dataloaders(
         batch_size=batch_size,
         shuffle=False,
         num_workers=num_workers,
-        pin_memory=True,
+        # pin_memory=True,
     )
 
     class_names = train_data.classes
