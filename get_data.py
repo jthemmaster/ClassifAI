@@ -26,14 +26,18 @@ def download_data(url: str, destination: str, remove_source: bool = True) -> Pat
     data_path = Path("data")
     data_path.mkdir(exist_ok=True, parents=True)
     file_path = data_path / destination
+    extracted_dir = data_path / destination.replace(".zip", "")
 
-
+    if extracted_dir.exists():
+        print(f"Folder {extracted_dir} already exists, skipping download...")
+        return extracted_dir
+    
     print(f"Downloading: {url} ...")
     response = requests.get(url)
     
     with open(file_path, "wb") as fd:
         fd.write(response.content)
-    extracted_dir = data_path / destination.replace(".zip", "")
+    
     print(f"Unzipping to data to {extracted_dir}")
     with zipfile.ZipFile(file_path, "r") as zip_ref:
         zip_ref.extractall(extracted_dir)
