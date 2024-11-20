@@ -47,9 +47,7 @@ def plot_one_image(image, image_class="No class given"):
     permuted_image = image.permute(1, 2, 0)
     plt.figure(figsize=(10, 7))
     plt.imshow(permuted_image)
-    plt.title(
-        f"Image class: {image_class} | Image shape: {permuted_image.shape} -> [height, width, color_channels]"
-    )
+    plt.title(f"Image class: {image_class}")
     plt.axis(False)
     plt.show()
 

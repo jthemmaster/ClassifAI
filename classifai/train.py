@@ -1,66 +1,106 @@
-"""
-Trains a PyTorch image classification model using device-agnostic code.
-"""
-
+import argparse
 import os
 import torch
-import data_setup, engine, model_builder, utils
+from . import data_setup, engine, model_builder, utils
 import torch.multiprocessing as mp
-from torchvision import transforms
+from classifai.transform import get_transforms
 
 
-def main():
-    # Setup hyperparameters
-    NUM_EPOCHS = 5
-    BATCH_SIZE = 32
-    HIDDEN_UNITS = 10
-    LEARNING_RATE = 0.001
+def train_model(
+    train_dir,
+    test_dir,
+    model_save_path,
+    epochs=5,
+    batch_size=32,
+    hidden_units=10,
+    lr=0.001,
+    device=None,
+):
+    if device is None:
+        device = (
+            "cuda"
+            if torch.cuda.is_available()
+            else "mps"
+            if torch.backends.mps.is_available()
+            else "cpu"
+        )
 
-    # Setup directories
-    train_dir = "data/pizza_steak_sushi/train"
-    test_dir = "data/pizza_steak_sushi/test"
+    # data_transform = transforms.Compose(
+    #     [transforms.Resize((64, 64)), transforms.ToTensor()]
+    # )
+    data_transform = get_transforms(mode="normal")
 
-    # Setup target device
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-
-    # Create transforms
-    data_transform = transforms.Compose(
-        [transforms.Resize((64, 64)), transforms.ToTensor()]
-    )
-
-    # Create DataLoaders with help from data_setup.py
     train_dataloader, test_dataloader, class_names = data_setup.create_dataloaders(
         train_dir=train_dir,
         test_dir=test_dir,
         transform=data_transform,
-        batch_size=BATCH_SIZE,
+        batch_size=batch_size,
     )
 
-    # Create model with help from model_builder.py
     model = model_builder.TinyVGG(
-        input_shape=3, hidden_units=HIDDEN_UNITS, output_shape=len(class_names)
+        input_shape=3, hidden_units=hidden_units, output_shape=len(class_names)
     ).to(device)
 
-    # Set loss and optimizer
     loss_fn = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-
-    # Start training with help from engine.py
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     engine.train(
         model=model,
         train_dataloader=train_dataloader,
         test_dataloader=test_dataloader,
         loss_fn=loss_fn,
         optimizer=optimizer,
-        epochs=NUM_EPOCHS,
+        epochs=epochs,
         device=device,
     )
 
-    # Save the model with help from utils.py
     utils.save_model(
         model=model,
-        target_dir="models",
-        model_name="05_going_modular_script_mode_tinyvgg_model.pth",
+        target_dir=os.path.dirname(model_save_path),
+        model_name=os.path.basename(model_save_path),
+    )
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Train a PyTorch image classification model."
+    )
+    parser.add_argument(
+        "--train_dir", type=str, required=True, help="Path to training data directory."
+    )
+    parser.add_argument(
+        "--test_dir", type=str, required=True, help="Path to testing data directory."
+    )
+    parser.add_argument(
+        "--model_save_path",
+        type=str,
+        required=True,
+        help="Path to save the trained model.",
+    )
+    parser.add_argument(
+        "--epochs", type=int, default=5, help="Number of epochs for training."
+    )
+    parser.add_argument(
+        "--batch_size", type=int, default=32, help="Batch size for training."
+    )
+    parser.add_argument(
+        "--hidden_units",
+        type=int,
+        default=10,
+        help="Number of hidden units in the model.",
+    )
+    parser.add_argument(
+        "--lr", type=float, default=0.001, help="Learning rate for optimizer."
+    )
+    args = parser.parse_args()
+
+    train_model(
+        train_dir=args.train_dir,
+        test_dir=args.test_dir,
+        model_save_path=args.model_save_path,
+        epochs=args.epochs,
+        batch_size=args.batch_size,
+        hidden_units=args.hidden_units,
+        lr=args.lr,
     )
 
 
