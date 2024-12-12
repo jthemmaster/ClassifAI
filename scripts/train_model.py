@@ -11,6 +11,7 @@ def main():
         if torch.backends.mps.is_available()
         else "cpu"
     )
+    device = "cpu"
     print(f"Using device: {device}")
     parser = argparse.ArgumentParser(
         description="Train a PyTorch image classification model."
@@ -34,13 +35,12 @@ def main():
         "--batch_size", type=int, default=32, help="Batch size for training."
     )
     parser.add_argument(
-        "--hidden_units",
-        type=int,
-        default=10,
-        help="Number of hidden units in the model.",
+        "--lr", type=float, default=0.001, help="Learning rate for optimizer."
     )
     parser.add_argument(
-        "--lr", type=float, default=0.001, help="Learning rate for optimizer."
+        "--model_name",
+        type=str,
+        help="Name of the Model to use for training. (For example TinyVGG)",
     )
     args = parser.parse_args()
 
@@ -50,9 +50,9 @@ def main():
         model_save_path=args.model_save_path,
         epochs=args.epochs,
         batch_size=args.batch_size,
-        hidden_units=args.hidden_units,
         lr=args.lr,
         device=device,
+        model_name=args.model_name,
     )
 
 

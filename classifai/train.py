@@ -4,6 +4,8 @@ import torch
 from . import data_setup, engine, model_builder, utils
 import torch.multiprocessing as mp
 from classifai.transform import get_transforms
+import torchvision
+from torchinfo import summary
 
 
 def train_model(
@@ -12,9 +14,11 @@ def train_model(
     model_save_path,
     epochs=5,
     batch_size=32,
-    hidden_units=10,
     lr=0.001,
     device=None,
+    model_name: str = "TinyVGG",
+    experiment_name: str = "",
+    extra: str = "",
 ):
     if device is None:
         device = (
@@ -25,9 +29,6 @@ def train_model(
             else "cpu"
         )
 
-    # data_transform = transforms.Compose(
-    #     [transforms.Resize((64, 64)), transforms.ToTensor()]
-    # )
     data_transform = get_transforms(mode="normal")
 
     train_dataloader, test_dataloader, class_names = data_setup.create_dataloaders(
@@ -37,13 +38,13 @@ def train_model(
         batch_size=batch_size,
     )
 
-    model = model_builder.TinyVGG(
-        input_shape=3, hidden_units=hidden_units, output_shape=len(class_names)
-    ).to(device)
-
+    model = model_builder.get_model(model_name=model_name, device=device)
     loss_fn = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-    engine.train(
+    # writer = utils.create_writer(
+    #     experiment_name=experiment_name, model_name=model_name, extra=extra
+    # )
+    engine.train_with_mlflow(
         model=model,
         train_dataloader=train_dataloader,
         test_dataloader=test_dataloader,
@@ -51,6 +52,7 @@ def train_model(
         optimizer=optimizer,
         epochs=epochs,
         device=device,
+        # writer=writer,
     )
 
     utils.save_model(

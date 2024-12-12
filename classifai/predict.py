@@ -14,12 +14,11 @@ import torchvision
 def load_pytorch_model(
     model_path: str,
     device: torch.device,
-    hidden_units: int = 128,
-    output_shape: int = 3,
+    model_name: str = "effnetb0",
 ) -> torch.nn.Module:
-    model = model_builder.TinyVGG(
-        input_shape=3, hidden_units=hidden_units, output_shape=output_shape
-    ).to(device)
+    model = model_builder.get_model(model_name=model_name, device=device)
+    model.load_state_dict(torch.load(model_path, weights_only=True))
+    print(f"Loaded model from {model_path}")
     return model
 
 
@@ -37,9 +36,12 @@ def one_forward_pass(
     model.eval()
     with torch.inference_mode():
         pred_logits = model(image_tensor)
+        percentage = torch.softmax(pred_logits, dim=1).squeeze()
         pred = torch.argmax(torch.softmax(pred_logits, dim=1), dim=1)
+        percentage = percentage[pred.item()]
     class_names = ["pizza", "steak", "sushi"]
-    return class_names[pred]
+
+    return class_names[pred], percentage
 
 
 def main():
@@ -66,10 +68,14 @@ def main():
 
     model = load_pytorch_model(args.model_path, device)
 
-    pred_class = one_forward_pass(
+    pred_class, percentage = one_forward_pass(
         model=model, image_path=args.image_path, device=device
     )
-    plot_one_image(raw_image_to_ml_input(args.image_path), image_class=pred_class)
+    plot_one_image(
+        raw_image_to_ml_input(args.image_path),
+        image_class=pred_class,
+        percentage=percentage,
+    )
 
 
 if __name__ == "__main__":
