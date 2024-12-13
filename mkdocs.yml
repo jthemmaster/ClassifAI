@@ -1,0 +1,20 @@
+site_name: Classifai
+site_url: https://janmeissner.science/
+repo_url: https://github.com/jthemmaster
+nav:
+  - Home: index.md
+  - classifai:
+    - config: classifai/config.md
+    - data_setup: classifai/data_setup.md
+    - engine: classifai/engine.md
+    - model_builder: classifai/model_builder.md
+    - predict: classifai/predict.md
+    - train: classifai/train.md
+    - transform: classifai/transform.md
+    - utils: classifai/utils.md
+
+theme: readthedocs
+plugins:
+  - mkdocstrings
+watch:
+  - .  # reload docs for any file changes

@@ -2,12 +2,13 @@
 Contains training and test Pytorch model
 """
 
+from typing import Dict, List, Tuple
+
+import mlflow
+import mlflow.pytorch
 import torch
 import torch.utils.tensorboard
 from tqdm.auto import tqdm
-from typing import Dict, List, Tuple
-import mlflow
-import mlflow.pytorch
 
 
 def train_step(
@@ -114,7 +115,12 @@ def train(
                     test_acc: [0.3400, 0.2973]}
     """
 
-    results = {"train_loss": [], "train_acc": [], "test_loss": [], "test_acc": []}
+    results = {
+        "train_loss": [],
+        "train_acc": [],
+        "test_loss": [],
+        "test_acc": [],
+    }
 
     for epoch in tqdm(range(epochs)):
         train_loss, train_acc = train_step(
@@ -146,12 +152,18 @@ def train(
         if writer:
             writer.add_scalars(
                 main_tag="Loss",
-                tag_scalar_dict={"train_loss": train_loss, "test_loss": test_loss},
+                tag_scalar_dict={
+                    "train_loss": train_loss,
+                    "test_loss": test_loss,
+                },
                 global_step=epoch,
             )
             writer.add_scalars(
                 main_tag="Accuracy",
-                tag_scalar_dict={"train_acc": train_acc, "test_acc": test_acc},
+                tag_scalar_dict={
+                    "train_acc": train_acc,
+                    "test_acc": test_acc,
+                },
                 global_step=epoch,
             )
             writer.close()
@@ -171,12 +183,18 @@ def train_with_mlflow(
 ) -> Dict[str, List]:
     """Trains and tests a PyTorch model with MLflow experiment tracking."""
 
-    results = {"train_loss": [], "train_acc": [], "test_loss": [], "test_acc": []}
+    results = {
+        "train_loss": [],
+        "train_acc": [],
+        "test_loss": [],
+        "test_acc": [],
+    }
 
     # End any lingering active run
     if mlflow.active_run():
         print(
-            f"Ending active run before starting a new one: {mlflow.active_run().info.run_id}"
+            f"Ending active run before starting a new one: "
+            f"{mlflow.active_run().info.run_id}"
         )
         mlflow.end_run()
 
@@ -229,7 +247,8 @@ def train_with_mlflow(
         # Ensure the run is ended
         if mlflow.active_run():
             print(
-                f"Ending run at the end of train_with_mlflow: {mlflow.active_run().info.run_id}"
+                f"Ending run at the end of train_with_mlflow: "
+                f"{mlflow.active_run().info.run_id}"
             )
             mlflow.end_run()
 

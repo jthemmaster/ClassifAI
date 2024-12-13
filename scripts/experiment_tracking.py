@@ -1,15 +1,14 @@
-from classifai.train import train_model
-import torch
 import mlflow
+import torch
+
+from classifai.train import train_model
 
 
 def main():
     device = (
         "cuda"
         if torch.cuda.is_available()
-        else "mps"
-        if torch.backends.mps.is_available()
-        else "cpu"
+        else "mps" if torch.backends.mps.is_available() else "cpu"
     )
     data = ["pizza_steak_sushi", "pizza_steak_sushi_20"]
     epochs = [10, 20]
@@ -35,7 +34,8 @@ def main():
 
                 try:
                     with mlflow.start_run(
-                        run_name=f"Experiment_{experiment_number}", nested=True
+                        run_name=f"Experiment_{experiment_number}",
+                        nested=True,
                     ):
                         # Log parameters and run training
                         mlflow.log_param("data", d)

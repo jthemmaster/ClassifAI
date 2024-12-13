@@ -2,9 +2,8 @@
 Contains functionality to create Dataloaders for the dataset
 """
 
-import os
-from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
+from torchvision import datasets, transforms
 
 NUM_WORKERS = 0  # os.cpu_count()
 
@@ -19,12 +18,14 @@ def create_dataloaders(
     """
     Creates training and testing Dataloaders
 
-    Takes training and testing directory paths and turns them into PyTorch Datasets and Dataloaders
+    Takes training and testing directory paths and turns them into
+    PyTorch Datasets and Dataloaders
 
     Args:
         train_dir: Path to training directory
         test_dir: Path to testing directory
-        transform: torchvision transforms performed on training and testing data
+        transform: torchvision transforms performed on training and
+        testing data
         batch size: Batch size of Dataloader
         num_workers: Number of worker per DataLoader
 
@@ -32,7 +33,8 @@ def create_dataloaders(
         A tuple of (train_dataloader, test_dataloader, class_names)
     """
 
-    # Using ImageFolder for transform: https://pytorch.org/vision/main/generated/torchvision.datasets.ImageFolder.html
+    # Using ImageFolder for transform:
+    # https://pytorch.org/vision/main/generated/torchvision.datasets.ImageFolder.html
 
     train_data = datasets.ImageFolder(train_dir, transform=transform)
     test_data = datasets.ImageFolder(test_dir, transform=transform)

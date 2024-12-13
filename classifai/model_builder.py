@@ -3,8 +3,8 @@ Contains PyTorch model
 """
 
 import torch
-from torch import nn
 import torchvision
+from torch import nn
 
 
 class TinyVGG(nn.Module):
@@ -52,7 +52,10 @@ class TinyVGG(nn.Module):
 
         self.classifier = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(in_features=hidden_units * 256, out_features=output_shape),
+            nn.Linear(
+                in_features=hidden_units * 256,
+                out_features=output_shape,
+            ),
         )
 
     def forward(self, x):
@@ -67,7 +70,9 @@ def get_model(
 ) -> torch.nn.Module:
     if model_name == "TinyVGG":
         model = TinyVGG(
-            input_shape=3, hidden_units=hidden_units, output_shape=output_shape
+            input_shape=3,
+            hidden_units=hidden_units,
+            output_shape=output_shape,
         ).to(device)
 
     elif model_name == "effnetb0":
@@ -83,7 +88,9 @@ def get_model(
 
     elif model_name == "effnetv2_s":
         weights = torchvision.models.EfficientNet_V2_S_Weights.DEFAULT
-        model = torchvision.models.efficientnet_v2_s(weights=weights).to(device)
+        model = torchvision.models.efficientnet_v2_s(weights=weights).to(
+            device
+        )
         # Freeze parameters
         for params in model.features.parameters():
             params.requires_grad = False

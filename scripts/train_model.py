@@ -1,15 +1,15 @@
-from classifai.train import train_model
 import argparse
+
 import torch
+
+from classifai.train import train_model
 
 
 def main():
     device = (
         "cuda"
         if torch.cuda.is_available()
-        else "mps"
-        if torch.backends.mps.is_available()
-        else "cpu"
+        else "mps" if torch.backends.mps.is_available() else "cpu"
     )
     device = "cpu"
     print(f"Using device: {device}")
@@ -17,10 +17,16 @@ def main():
         description="Train a PyTorch image classification model."
     )
     parser.add_argument(
-        "--train_dir", type=str, required=True, help="Path to training data directory."
+        "--train_dir",
+        type=str,
+        required=True,
+        help="Path to training data directory.",
     )
     parser.add_argument(
-        "--test_dir", type=str, required=True, help="Path to testing data directory."
+        "--test_dir",
+        type=str,
+        required=True,
+        help="Path to testing data directory.",
     )
     parser.add_argument(
         "--model_save_path",
@@ -29,13 +35,22 @@ def main():
         help="Path to save the trained model.",
     )
     parser.add_argument(
-        "--epochs", type=int, default=5, help="Number of epochs for training."
+        "--epochs",
+        type=int,
+        default=5,
+        help="Number of epochs for training.",
     )
     parser.add_argument(
-        "--batch_size", type=int, default=32, help="Batch size for training."
+        "--batch_size",
+        type=int,
+        default=32,
+        help="Batch size for training.",
     )
     parser.add_argument(
-        "--lr", type=float, default=0.001, help="Learning rate for optimizer."
+        "--lr",
+        type=float,
+        default=0.001,
+        help="Learning rate for optimizer.",
     )
     parser.add_argument(
         "--model_name",

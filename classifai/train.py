@@ -1,11 +1,12 @@
 import argparse
 import os
+
 import torch
-from . import data_setup, engine, model_builder, utils
 import torch.multiprocessing as mp
+
 from classifai.transform import get_transforms
-import torchvision
-from torchinfo import summary
+
+from . import data_setup, engine, model_builder, utils
 
 
 def train_model(
@@ -21,21 +22,22 @@ def train_model(
     extra: str = "",
 ):
     if device is None:
-        device = (
-            "cuda"
-            if torch.cuda.is_available()
-            else "mps"
-            if torch.backends.mps.is_available()
-            else "cpu"
-        )
+        if torch.cuda.is_available():
+            device = "cuda"
+        elif torch.backends.mps.is_available():
+            device = "mps"
+        else:
+            device = "cpu"
 
     data_transform = get_transforms(mode="normal")
 
-    train_dataloader, test_dataloader, class_names = data_setup.create_dataloaders(
-        train_dir=train_dir,
-        test_dir=test_dir,
-        transform=data_transform,
-        batch_size=batch_size,
+    train_dataloader, test_dataloader, class_names = (
+        data_setup.create_dataloaders(
+            train_dir=train_dir,
+            test_dir=test_dir,
+            transform=data_transform,
+            batch_size=batch_size,
+        )
     )
 
     model = model_builder.get_model(model_name=model_name, device=device)
@@ -67,10 +69,16 @@ def main():
         description="Train a PyTorch image classification model."
     )
     parser.add_argument(
-        "--train_dir", type=str, required=True, help="Path to training data directory."
+        "--train_dir",
+        type=str,
+        required=True,
+        help="Path to training data directory.",
     )
     parser.add_argument(
-        "--test_dir", type=str, required=True, help="Path to testing data directory."
+        "--test_dir",
+        type=str,
+        required=True,
+        help="Path to testing data directory.",
     )
     parser.add_argument(
         "--model_save_path",
@@ -79,10 +87,16 @@ def main():
         help="Path to save the trained model.",
     )
     parser.add_argument(
-        "--epochs", type=int, default=5, help="Number of epochs for training."
+        "--epochs",
+        type=int,
+        default=5,
+        help="Number of epochs for training.",
     )
     parser.add_argument(
-        "--batch_size", type=int, default=32, help="Batch size for training."
+        "--batch_size",
+        type=int,
+        default=32,
+        help="Batch size for training.",
     )
     parser.add_argument(
         "--hidden_units",
@@ -91,7 +105,10 @@ def main():
         help="Number of hidden units in the model.",
     )
     parser.add_argument(
-        "--lr", type=float, default=0.001, help="Learning rate for optimizer."
+        "--lr",
+        type=float,
+        default=0.001,
+        help="Learning rate for optimizer.",
     )
     args = parser.parse_args()
 

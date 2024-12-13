@@ -3,11 +3,11 @@ Utility methods for torchvision code
 """
 
 import random
-from PIL import Image
-import matplotlib.pyplot as plt
-import numpy as np
-import torch
 from pathlib import Path
+
+import matplotlib.pyplot as plt
+import torch
+from PIL import Image
 from torch.utils.tensorboard import SummaryWriter
 
 
@@ -21,7 +21,8 @@ def plot_transformed_images(image_paths, transform, n=3, seed=42):
         image_paths (list): List of target image paths.
         transform (PyTorch Transforms): Transforms to apply to images.
         n (int, optional): Number of images to plot. Defaults to 3.
-        seed (int, optional): Random seed for the random generator. Defaults to 42.
+        seed (int, optional): Random seed for the random generator.
+        Defaults to 42.
     """
     random.seed(seed)
     random_image_paths = random.sample(image_paths, k=n)
@@ -43,13 +44,18 @@ def plot_transformed_images(image_paths, transform, n=3, seed=42):
             fig.suptitle(f"Class: {image_path.parent.stem}", fontsize=16)
 
 
-def plot_one_image(image, image_class="No class given", percentage: float = None):
+def plot_one_image(
+    image, image_class="No class given", percentage: float = None
+):
     # Plot the image with matplotlib
     permuted_image = image.permute(1, 2, 0)
     plt.figure(figsize=(10, 7))
     plt.imshow(permuted_image)
     if percentage:
-        plt.title(f"Image class: {image_class}  |  Percentage: {percentage:.2f}")
+        plt_title = (
+            f"Image class: {image_class}  |  " f"Percentage: {percentage:.2f}"
+        )
+        plt.title(plt_title)
     else:
         plt.title(f"Image class: {image_class}")
     plt.axis(False)
@@ -88,39 +94,44 @@ def save_model(model: torch.nn.Module, target_dir: str, model_name: str):
 def create_writer(
     experiment_name: str, model_name: str, extra: str = None
 ) -> SummaryWriter:
-    """Creates a torch.utils.tensorboard.writer.SummaryWriter() instance saving to a specific log_dir.
+    """Creates a torch.utils.tensorboard.writer.SummaryWriter()
+    instance saving to a specific log_dir.
 
-    log_dir is a combination of runs/timestamp/experiment_name/model_name/extra.
+    log_dir is a combination of runs/timestamp/experiment_name/
+    model_name/extra.
 
     Where timestamp is the current date in YYYY-MM-DD format.
 
     Args:
         experiment_name (str): Name of experiment.
         model_name (str): Name of model.
-        extra (str, optional): Anything extra to add to the directory. Defaults to None.
+        extra (str, optional): Anything extra to add to the directory.
+        Defaults to None.
 
     Returns:
-        torch.utils.tensorboard.writer.SummaryWriter(): Instance of a writer saving to log_dir.
+        torch.utils.tensorboard.writer.SummaryWriter(): Instance of a writer
+        saving to log_dir.
 
     Example usage:
-        # Create a writer saving to "runs/2022-06-04/data_10_percent/effnetb2/5_epochs/"
+        # Create a writer saving to
+        # "runs/2022-06-04/data_10_percent/effnetb2/5_epochs/"
         writer = create_writer(experiment_name="data_10_percent",
                                model_name="effnetb2",
                                extra="5_epochs")
         # The above is the same as:
-        writer = SummaryWriter(log_dir="runs/2022-06-04/data_10_percent/effnetb2/5_epochs/")
+        writer = SummaryWriter(log_dir="runs/2022-06-04/data_10_percent/
+        effnetb2/5_epochs/")
     """
-    from datetime import datetime
     import os
+    from datetime import datetime
 
-    # Get timestamp of current date (all experiments on certain day live in same folder)
-    timestamp = datetime.now().strftime(
-        "%Y-%m-%d"
-    )  # returns current date in YYYY-MM-DD format
+    timestamp = datetime.now().strftime("%Y-%m-%d")
 
     if extra:
         # Create log directory path
-        log_dir = os.path.join("runs", timestamp, experiment_name, model_name, extra)
+        log_dir = os.path.join(
+            "runs", timestamp, experiment_name, model_name, extra
+        )
     else:
         log_dir = os.path.join("runs", timestamp, experiment_name, model_name)
 

@@ -3,12 +3,13 @@ Given a custom image, predict the classification of that image
 """
 
 import argparse
+
 import torch
+from PIL import Image
+
 from classifai import model_builder
 from classifai.transform import get_transforms
 from classifai.utils import plot_one_image
-from PIL import Image
-import torchvision
 
 
 def load_pytorch_model(
@@ -32,7 +33,8 @@ def raw_image_to_ml_input(image_path: str) -> torch.FloatTensor:
 def one_forward_pass(
     model: torch.nn.Module, image_path: str, device: torch.device
 ) -> torch.FloatTensor:
-    image_tensor = raw_image_to_ml_input(image_path).to(device).unsqueeze(dim=0)
+    image_tensor = raw_image_to_ml_input(image_path)
+    image_tensor = image_tensor.to(device).unsqueeze(dim=0)
     model.eval()
     with torch.inference_mode():
         pred_logits = model(image_tensor)
@@ -48,9 +50,7 @@ def main():
     device = (
         "cuda"
         if torch.cuda.is_available()
-        else "mps"
-        if torch.backends.mps.is_available()
-        else "cpu"
+        else "mps" if torch.backends.mps.is_available() else "cpu"
     )
     print(f"Using device: {device}")
     parser = argparse.ArgumentParser(
@@ -58,10 +58,16 @@ def main():
     )
 
     parser.add_argument(
-        "--image_path", type=str, required=True, help="Path to custom image"
+        "--image_path",
+        type=str,
+        required=True,
+        help="Path to custom image",
     )
     parser.add_argument(
-        "--model_path", type=str, required=True, help="Path to Pytorch Model"
+        "--model_path",
+        type=str,
+        required=True,
+        help="Path to Pytorch Model",
     )
 
     args = parser.parse_args()
